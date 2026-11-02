@@ -14,7 +14,94 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      dispositivos: {
+        Row: {
+          celular: string
+          criado_em: string
+          id: string
+        }
+        Insert: {
+          celular?: string
+          criado_em?: string
+          id: string
+        }
+        Update: {
+          celular?: string
+          criado_em?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      listas: {
+        Row: {
+          dispositivo_id: string
+          id: number
+          nome: string
+        }
+        Insert: {
+          dispositivo_id: string
+          id: number
+          nome: string
+        }
+        Update: {
+          dispositivo_id?: string
+          id?: number
+          nome?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listas_dispositivo_id_fkey"
+            columns: ["dispositivo_id"]
+            isOneToOne: false
+            referencedRelation: "dispositivos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tarefas: {
+        Row: {
+          agendada_para: string | null
+          concluida: boolean
+          criada_em: string
+          dispositivo_id: string
+          id: number
+          lembrete_enviado: boolean
+          lista_id: number
+          prioridade: string
+          texto: string
+        }
+        Insert: {
+          agendada_para?: string | null
+          concluida?: boolean
+          criada_em?: string
+          dispositivo_id: string
+          id: number
+          lembrete_enviado?: boolean
+          lista_id: number
+          prioridade?: string
+          texto: string
+        }
+        Update: {
+          agendada_para?: string | null
+          concluida?: boolean
+          criada_em?: string
+          dispositivo_id?: string
+          id?: number
+          lembrete_enviado?: boolean
+          lista_id?: number
+          prioridade?: string
+          texto?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tarefas_dispositivo_id_fkey"
+            columns: ["dispositivo_id"]
+            isOneToOne: false
+            referencedRelation: "dispositivos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
