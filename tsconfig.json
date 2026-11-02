@@ -2,8 +2,10 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
-    "vite.config.ts",
-    "vitest.config.ts",
+    "src/**/*.js",
+    "src/**/*.jsx",
+    "vite.config.js",
+    "vitest.config.js",
     "eslint.config.js"
   ],
   "compilerOptions": {
@@ -15,6 +17,8 @@
 
     "moduleResolution": "Bundler",
     "allowImportingTsExtensions": true,
+    "allowJs": true,
+    "checkJs": false,
     "verbatimModuleSyntax": false,
     "noEmit": true,
 
