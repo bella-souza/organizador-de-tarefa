@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
+import { carregarDados, salvarDados } from "@/lib/organizador.functions";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -65,6 +66,36 @@ function Index() {
   const [hoje, setHoje] = useState<Date | null>(null);
   useEffect(() => setHoje(new Date()), []);
 
+  // Sincroniza com o Lovable Cloud usando um identificador deste aparelho
+  const [dispositivoId, setDispositivoId] = useState<string | null>(null);
+  const [sincronizado, setSincronizado] = useState(false);
+  useEffect(() => {
+    let id = localStorage.getItem("org-dispositivo");
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem("org-dispositivo", id);
+    }
+    setDispositivoId(id);
+    carregarDados({ data: { dispositivoId: id } })
+      .then((d) => {
+        if (d) {
+          setCelular(d.celular);
+          if (d.listas.length) setListas(d.listas);
+          setTarefas(d.tarefas);
+        }
+      })
+      .catch(console.error)
+      .finally(() => setSincronizado(true));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (!sincronizado || !dispositivoId) return;
+    const t = setTimeout(() => {
+      salvarDados({ data: { dispositivoId, celular: celular.trim(), listas, tarefas } }).catch(console.error);
+    }, 800);
+    return () => clearTimeout(t);
+  }, [sincronizado, dispositivoId, celular, listas, tarefas]);
+
   const daLista = tarefas.filter((t) => t.listaId === listaAtiva);
   const visiveis = daLista
     .filter((t) => !diaFiltro || (t.agendadaPara && mesmoDia(new Date(t.agendadaPara), new Date(diaFiltro))))
@@ -85,7 +116,7 @@ function Index() {
     if (!v) return;
     setTarefas([
       ...tarefas,
-      { id: Date.now(), texto: v, concluida: false, criadaEm: new Date().toISOString(), prioridade, agendadaPara: agendada, listaId: listaAtiva },
+      { id: Date.now(), texto: v, concluida: false, criadaEm: new Date().toISOString(), prioridade, agendadaPara: agendada ? new Date(agendada).toISOString() : "", listaId: listaAtiva },
     ]);
     setTexto("");
     setAgendada("");
