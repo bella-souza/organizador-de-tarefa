@@ -138,6 +138,25 @@ function Index() {
     setListaAtiva(1);
   };
 
+  // Edição do título de uma tarefa
+  const [editandoId, setEditandoId] = useState<number | null>(null);
+  const [rascunho, setRascunho] = useState("");
+  const iniciarEdicao = (t: Tarefa) => {
+    setEditandoId(t.id);
+    setRascunho(t.texto);
+  };
+  const cancelarEdicao = () => {
+    setEditandoId(null);
+    setRascunho("");
+  };
+  const salvarEdicao = (e: FormEvent, id: number) => {
+    e.preventDefault();
+    const novo = rascunho.trim();
+    if (!novo) return;
+    setTarefas(tarefas.map((x) => (x.id === id ? { ...x, texto: novo } : x)));
+    cancelarEdicao();
+  };
+
   return (
     <main className="min-h-screen px-4 py-10 sm:py-14">
       <div className="mx-auto max-w-3xl space-y-6">
@@ -281,7 +300,28 @@ function Index() {
                     className="mt-1 h-5 w-5 accent-primary"
                   />
                   <div className="min-w-0 flex-1">
-                    <p className={`break-words font-semibold ${t.concluida ? "text-muted-foreground line-through" : ""}`}>{t.texto}</p>
+                    {editandoId === t.id ? (
+                      <form onSubmit={(e) => salvarEdicao(e, t.id)} className="flex flex-col gap-2 sm:flex-row">
+                        <input
+                          value={rascunho}
+                          onChange={(e) => setRascunho(e.target.value)}
+                          onKeyDown={(e) => e.key === "Escape" && cancelarEdicao()}
+                          aria-label="Editar título da tarefa"
+                          autoFocus
+                          className={`${campo} min-w-0 flex-1 py-1.5`}
+                        />
+                        <div className="flex gap-2">
+                          <button type="submit" disabled={!rascunho.trim()} className="rounded-lg bg-primary px-3 py-1 text-sm font-semibold text-primary-foreground disabled:opacity-50">
+                            Salvar
+                          </button>
+                          <button type="button" onClick={cancelarEdicao} className="rounded-lg border border-border px-3 py-1 text-sm font-semibold">
+                            Cancelar
+                          </button>
+                        </div>
+                      </form>
+                    ) : (
+                      <p className={`break-words font-semibold ${t.concluida ? "text-muted-foreground line-through" : ""}`}>{t.texto}</p>
+                    )}
                     <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <span className={`h-2 w-2 rounded-full ${PRIORIDADES[t.prioridade].cor}`} />
@@ -291,12 +331,19 @@ function Index() {
                       {t.agendadaPara && <span className="font-semibold text-primary">Agendada: {fmt(t.agendadaPara)}</span>}
                     </div>
                   </div>
-                  <button
-                    onClick={() => setTarefas(tarefas.filter((x) => x.id !== t.id))}
-                    className="rounded-lg px-3 py-1 text-sm font-semibold text-destructive hover:bg-destructive/10"
-                  >
-                    Excluir
-                  </button>
+                  <div className="flex flex-col gap-1 sm:flex-row">
+                    {editandoId !== t.id && (
+                      <button onClick={() => iniciarEdicao(t)} className="rounded-lg px-3 py-1 text-sm font-semibold text-primary hover:bg-primary/10">
+                        Editar
+                      </button>
+                    )}
+                    <button
+                      onClick={() => setTarefas(tarefas.filter((x) => x.id !== t.id))}
+                      className="rounded-lg px-3 py-1 text-sm font-semibold text-destructive hover:bg-destructive/10"
+                    >
+                      Excluir
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
