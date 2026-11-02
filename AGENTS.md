@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Data is synced to Lovable Cloud per browser via a random device UUID in localStorage (no login); server functions in src/lib/organizador.functions.ts use the admin client filtered by that ID, and tables have RLS with no public policies. Why: user asked for no login.
