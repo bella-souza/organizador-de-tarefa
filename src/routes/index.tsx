@@ -61,6 +61,7 @@ function Index() {
   const [prioridade, setPrioridade] = useState<Prioridade>("media");
   const [agendada, setAgendada] = useState("");
   const [novaLista, setNovaLista] = useState("");
+  const [celular, setCelular] = usePersistente<string>("org-celular", "");
   const [hoje, setHoje] = useState<Date | null>(null);
   useEffect(() => setHoje(new Date()), []);
 
@@ -158,32 +159,42 @@ function Index() {
 
         <section className="rounded-2xl bg-card p-5 shadow-card">
           <h2 className="mb-3 text-lg font-bold">Minhas listas</h2>
-          <div className="flex flex-wrap gap-2">
+          <div className="space-y-2">
             {listas.map((l) => (
-              <span
+              <div
                 key={l.id}
-                className={`flex items-center rounded-full text-sm font-semibold ${
-                  l.id === listaAtiva ? "bg-primary text-primary-foreground" : "bg-accent text-accent-foreground"
+                className={`flex items-center rounded-xl font-semibold ${
+                  l.id === listaAtiva ? "bg-primary text-primary-foreground shadow-card" : "bg-accent text-accent-foreground"
                 }`}
               >
-                <button onClick={() => setListaAtiva(l.id)} className="py-1.5 pl-4 pr-2">
-                  {l.nome} ({tarefas.filter((t) => t.listaId === l.id).length})
+                <button onClick={() => setListaAtiva(l.id)} className="flex flex-1 items-center justify-between px-4 py-2.5 text-left">
+                  <span>{l.nome}</span>
+                  <span>{tarefas.filter((t) => t.listaId === l.id).length}</span>
                 </button>
                 {l.id !== 1 && (
-                  <button onClick={() => excluirLista(l.id)} aria-label={`Excluir lista ${l.nome}`} className="pr-3 opacity-70 hover:opacity-100">
+                  <button onClick={() => excluirLista(l.id)} aria-label={`Excluir lista ${l.nome}`} className="pr-4 opacity-70 hover:opacity-100">
                     ×
                   </button>
                 )}
-                {l.id === 1 && <span className="pr-2" />}
-              </span>
+              </div>
             ))}
           </div>
           <form onSubmit={criarLista} className="mt-3 flex gap-2">
-            <input value={novaLista} onChange={(e) => setNovaLista(e.target.value)} placeholder="Nome da nova lista (ex.: Matemática)" className={`${campo} flex-1 py-2`} />
-            <button type="submit" className="rounded-xl border border-primary px-4 font-bold text-primary hover:bg-accent">
-              Criar lista
+            <input value={novaLista} onChange={(e) => setNovaLista(e.target.value)} placeholder="Nova lista" className={`${campo} min-w-0 flex-1 py-2`} />
+            <button type="submit" aria-label="Criar lista" className="rounded-xl bg-primary px-4 text-lg font-bold text-primary-foreground shadow-card hover:opacity-90">
+              +
             </button>
           </form>
+          <label className="mt-4 block">
+            <span className="mb-2 block text-sm font-semibold">Celular para lembretes</span>
+            <input
+              type="tel"
+              value={celular}
+              onChange={(e) => setCelular(e.target.value)}
+              placeholder="+5511999999999"
+              className={`${campo} w-full py-2`}
+            />
+          </label>
         </section>
 
         <section className="rounded-2xl bg-card p-5 shadow-card">
