@@ -1,5 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import {
+  Apple,
+  CalendarDays,
+  CheckCircle2,
+  ListTodo,
+  Moon,
+  Pencil,
+  Phone,
+  Plus,
+  Sparkles,
+  Trash2,
+  X,
+} from "lucide-react";
 import { carregarDados, salvarDados } from "@/lib/organizador.functions";
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -36,7 +49,7 @@ const fmt = (iso) =>
   });
 const mesmoDia = (a, b) => a.toDateString() === b.toDateString();
 const campo =
-  "rounded-xl border border-input bg-background px-4 py-3 outline-none focus:ring-2 focus:ring-primary";
+  "nocturna-input rounded-xl border px-4 py-3 outline-none transition focus:ring-0";
 function usePersistente(chave, inicial) {
   const [v, setV] = useState(inicial);
   const [pronto, setPronto] = useState(false);
@@ -61,6 +74,7 @@ function Index() {
   const [novaLista, setNovaLista] = useState("");
   const [celular, setCelular] = usePersistente("org-celular", "");
   const [hoje, setHoje] = useState(null);
+  const [anuncio, setAnuncio] = useState("");
   useEffect(() => setHoje(new Date()), []);
   // Sincroniza com o Lovable Cloud usando um identificador deste aparelho
   const [dispositivoId, setDispositivoId] = useState(null);
@@ -126,6 +140,7 @@ function Index() {
     ]);
     setTexto("");
     setAgendada("");
+    setAnuncio(`Tarefa "${v}" adicionada.`);
   };
   const criarLista = (e) => {
     e.preventDefault();
@@ -135,11 +150,13 @@ function Index() {
     setListas([...listas, { id, nome: n }]);
     setListaAtiva(id);
     setNovaLista("");
+    setAnuncio(`Lista "${n}" criada.`);
   };
   const excluirLista = (id) => {
     setListas(listas.filter((l) => l.id !== id));
     setTarefas(tarefas.filter((t) => t.listaId !== id));
     setListaAtiva(1);
+    setAnuncio("Lista excluída.");
   };
   // Edição do título de uma tarefa
   const [editandoId, setEditandoId] = useState(null);
@@ -158,37 +175,75 @@ function Index() {
     if (!novo) return;
     setTarefas(tarefas.map((x) => (x.id === id ? { ...x, texto: novo } : x)));
     cancelarEdicao();
+    setAnuncio("Tarefa atualizada.");
   };
   return (
-    <main className="min-h-screen px-4 py-10 sm:py-14">
-      <div className="mx-auto max-w-3xl space-y-6">
-        <header className="text-center">
-          <h1 className="text-3xl font-extrabold text-primary sm:text-4xl">
-            Meu Organizador de Estudos
-          </h1>
-          <p className="mt-2 text-muted-foreground">
-            Olá! Que bom ter você aqui. Vamos organizar seus estudos juntos?
-          </p>
+    <main className="min-h-screen px-4 py-8 sm:py-12">
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {anuncio}
+      </div>
+      <div className="mx-auto max-w-5xl space-y-6">
+        <header className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#0b2f3a]/80 px-6 py-8 shadow-card sm:px-10">
+          <div className="absolute -right-8 -top-10 text-[#6e5138]/30">
+            <Moon size={150} strokeWidth={0.8} />
+          </div>
+          <div className="relative flex items-start gap-4">
+            <div className="rounded-2xl bg-[#2d6a4f] p-3 text-[#f3efe7] shadow-card">
+              <Sparkles size={25} />
+            </div>
+            <div>
+              <p className="mb-1 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.24em] text-[#e1ddd5]">
+                <span>Diário de estudos</span>
+                <span className="h-1 w-1 rounded-full bg-[#6e5138]" />
+                <span>Noite adentro</span>
+              </p>
+              <h1 className="text-4xl font-extrabold text-[#f3efe7] sm:text-5xl">
+                Meu Organizador de Estudos
+              </h1>
+              <p className="mt-2 max-w-xl text-[#e1ddd5]">
+                Um pequeno ritual para transformar cada tarefa em progresso.
+              </p>
+            </div>
+          </div>
         </header>
 
-        <section className="grid grid-cols-2 gap-4">
-          <div className="rounded-2xl bg-card p-5 text-center shadow-card">
-            <p className="text-3xl font-extrabold text-primary">{tarefas.length}</p>
-            <p className="text-sm text-muted-foreground">Tarefas cadastradas</p>
+        <section className="grid grid-cols-2 gap-3 sm:grid-cols-4" aria-label="Resumo das tarefas">
+          <div className="nocturna-panel rounded-2xl p-4">
+            <ListTodo className="mb-3 text-[#e1ddd5]" size={19} />
+            <p className="text-3xl font-extrabold text-[#f3efe7]">{tarefas.length}</p>
+            <p className="text-sm text-[#e1ddd5]">Tarefas no grimório</p>
           </div>
-          <div className="rounded-2xl bg-card p-5 text-center shadow-card">
-            <p className="text-3xl font-extrabold text-primary">{concluidas}</p>
-            <p className="text-sm text-muted-foreground">Tarefas concluídas</p>
+          <div className="nocturna-panel rounded-2xl p-4">
+            <CheckCircle2 className="mb-3 text-[#9bc6a7]" size={19} />
+            <p className="text-3xl font-extrabold text-[#f3efe7]">{concluidas}</p>
+            <p className="text-sm text-[#e1ddd5]">Feitiços concluídos</p>
+          </div>
+          <div className="nocturna-panel col-span-2 rounded-2xl p-4">
+            <p className="mb-2 text-sm text-[#e1ddd5]">Ritmo da semana</p>
+            <div className="flex items-end gap-3">
+              <p className="text-3xl font-extrabold text-[#f3efe7]">
+                {tarefas.length ? Math.round((concluidas / tarefas.length) * 100) : 0}%
+              </p>
+              <div className="mb-2 h-2 flex-1 overflow-hidden rounded-full bg-[#0b2f3a]/70">
+                <div
+                  className="h-full rounded-full bg-[#2d6a4f] transition-all"
+                  style={{ width: `${tarefas.length ? (concluidas / tarefas.length) * 100 : 0}%` }}
+                />
+              </div>
+            </div>
+            <p className="mt-1 text-xs text-[#e1ddd5]">Cada passo conta</p>
           </div>
         </section>
 
-        <section className="rounded-2xl bg-card p-5 shadow-card">
+        <section className="nocturna-panel rounded-2xl p-5" aria-labelledby="semana-heading">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-lg font-bold">Esta semana</h2>
+            <h2 id="semana-heading" className="flex items-center gap-2 text-xl font-bold">
+              <CalendarDays size={20} className="text-[#e1ddd5]" /> Esta semana
+            </h2>
             {diaFiltro && (
               <button
                 onClick={() => setDiaFiltro(null)}
-                className="text-sm font-semibold text-primary hover:underline"
+                className="text-sm font-semibold text-[#f3efe7] underline decoration-[#6e5138] decoration-2 underline-offset-4 hover:text-[#e1ddd5]"
               >
                 Ver todas
               </button>
@@ -204,12 +259,15 @@ function Index() {
               return (
                 <button
                   key={d.toISOString()}
+                  type="button"
                   onClick={() => setDiaFiltro(ativo ? null : d.toISOString())}
-                  className={`rounded-xl px-1 py-2 text-center transition ${ativo ? "bg-primary text-primary-foreground" : eHoje ? "bg-accent ring-2 ring-primary" : "bg-accent hover:bg-secondary"}`}
+                  aria-pressed={Boolean(ativo)}
+                  aria-label={`${DIAS[d.getDay()]} ${d.getDate()}${eHoje ? ", hoje" : ""}${qtd ? `, ${qtd} tarefas` : ", sem tarefas agendadas"}`}
+                  className={`rounded-xl border px-1 py-2 text-center transition ${ativo ? "border-[#f3efe7] bg-[#6e5138] text-[#f3efe7]" : eHoje ? "border-[#f3efe7] bg-[#1f6a6e] ring-2 ring-[#6e5138]" : "border-white/20 bg-[#0b2f3a]/70 hover:bg-[#1f6a6e]"}`}
                 >
                   <span className="block text-xs font-semibold">{DIAS[d.getDay()]}</span>
                   <span className="block text-lg font-extrabold">{d.getDate()}</span>
-                  <span className="block text-[10px]">
+                  <span className="block text-xs">
                     {qtd > 0 ? `${qtd} tarefa${qtd > 1 ? "s" : ""}` : "\u00a0"}
                   </span>
                 </button>
@@ -218,16 +276,21 @@ function Index() {
           </div>
         </section>
 
-        <section className="rounded-2xl bg-card p-5 shadow-card">
-          <h2 className="mb-3 text-lg font-bold">Minhas listas</h2>
+        <section className="nocturna-panel rounded-2xl p-5" aria-labelledby="listas-heading">
+          <h2 id="listas-heading" className="mb-3 flex items-center gap-2 text-xl font-bold">
+            <ListTodo size={20} className="text-[#e1ddd5]" /> Minhas listas
+          </h2>
           <div className="space-y-2">
             {listas.map((l) => (
               <div
                 key={l.id}
-                className={`flex items-center rounded-xl font-semibold ${l.id === listaAtiva ? "bg-primary text-primary-foreground shadow-card" : "bg-accent text-accent-foreground"}`}
+                className={`flex items-center rounded-xl font-semibold ${l.id === listaAtiva ? "bg-[#2d6a4f] text-[#f3efe7] shadow-card" : "bg-[#0b2f3a]/45 text-[#f3efe7]"} border border-white/10`}
               >
                 <button
+                  type="button"
                   onClick={() => setListaAtiva(l.id)}
+                  aria-pressed={l.id === listaAtiva}
+                  aria-label={`Selecionar lista ${l.nome}, ${tarefas.filter((t) => t.listaId === l.id).length} tarefas`}
                   className="flex flex-1 items-center justify-between px-4 py-2.5 text-left"
                 >
                   <span>{l.nome}</span>
@@ -235,18 +298,23 @@ function Index() {
                 </button>
                 {l.id !== 1 && (
                   <button
+                    type="button"
                     onClick={() => excluirLista(l.id)}
                     aria-label={`Excluir lista ${l.nome}`}
-                    className="pr-4 opacity-70 hover:opacity-100"
+                    className="pr-4 opacity-70 transition hover:opacity-100"
                   >
-                    ×
+                    <X size={17} />
                   </button>
                 )}
               </div>
             ))}
           </div>
           <form onSubmit={criarLista} className="mt-3 flex gap-2">
+            <label htmlFor="nova-lista" className="sr-only">
+              Nome da nova lista
+            </label>
             <input
+              id="nova-lista"
               value={novaLista}
               onChange={(e) => setNovaLista(e.target.value)}
               placeholder="Nova lista"
@@ -255,24 +323,33 @@ function Index() {
             <button
               type="submit"
               aria-label="Criar lista"
-              className="rounded-xl bg-primary px-4 text-lg font-bold text-primary-foreground shadow-card hover:opacity-90"
+              className="nocturna-button rounded-xl bg-[#2d6a4f] px-4 text-lg font-bold text-[#f3efe7] shadow-card"
             >
-              +
+              <Plus size={21} />
             </button>
           </form>
-          <label className="mt-4 block">
-            <span className="mb-2 block text-sm font-semibold">Celular para lembretes</span>
+          <div className="mt-4">
+            <span className="mb-2 flex items-center gap-2 text-sm font-semibold text-[#e1ddd5]">
+              <Phone size={15} /> Celular para lembretes
+            </span>
+            <label htmlFor="celular" className="sr-only">
+              Celular para lembretes
+            </label>
             <input
+              id="celular"
               type="tel"
               value={celular}
               onChange={(e) => setCelular(e.target.value)}
               placeholder="+5511999999999"
               className={`${campo} w-full py-2`}
             />
-          </label>
+          </div>
         </section>
 
-        <section className="rounded-2xl bg-card p-5 shadow-card">
+        <section className="nocturna-panel rounded-2xl p-5" aria-labelledby="adicionar-heading">
+          <h2 id="adicionar-heading" className="mb-4 text-xl font-bold">
+            Adicionar uma tarefa
+          </h2>
           <form onSubmit={adicionar} className="space-y-3">
             <div className="flex flex-col gap-3 sm:flex-row">
               <label htmlFor="nova" className="sr-only">
@@ -284,68 +361,81 @@ function Index() {
                 onChange={(e) => setTexto(e.target.value)}
                 placeholder="Digite uma nova tarefa..."
                 className={`${campo} flex-1`}
+                aria-describedby="nova-ajuda"
               />
               <button
                 type="submit"
-                className="rounded-xl bg-primary px-6 py-3 font-bold text-primary-foreground transition hover:opacity-90"
+                className="nocturna-button min-h-12 rounded-xl bg-[#2d6a4f] px-6 py-3 font-bold text-[#f3efe7] shadow-card"
               >
                 Adicionar
               </button>
             </div>
+            <p id="nova-ajuda" className="sr-only">
+              Informe o título, escolha uma prioridade e, se desejar, agende a tarefa.
+            </p>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-muted-foreground">Prioridade:</span>
+              <fieldset className="flex flex-wrap items-center gap-2">
+                <legend id="prioridade-label" className="text-sm font-semibold text-muted-foreground">
+                  Prioridade:
+                </legend>
                 {Object.keys(PRIORIDADES).map((p) => (
                   <button
                     type="button"
                     key={p}
                     onClick={() => setPrioridade(p)}
-                    className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm font-semibold ${prioridade === p ? "border-primary bg-accent" : "border-border"}`}
+                    aria-pressed={prioridade === p}
+                    aria-label={`Prioridade ${PRIORIDADES[p].rotulo}`}
+                    className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm font-semibold transition ${prioridade === p ? "border-[#f3efe7] bg-[#6e5138] text-[#f3efe7]" : "border-white/30 text-[#e1ddd5] hover:border-white/60"}`}
                   >
                     <span className={`h-2.5 w-2.5 rounded-full ${PRIORIDADES[p].cor}`} />
                     {PRIORIDADES[p].rotulo}
                   </button>
                 ))}
-              </div>
-              <label className="flex items-center gap-2 text-sm font-semibold text-muted-foreground sm:ml-auto">
-                Agendar para:
+              </fieldset>
+              <label className="flex w-full flex-wrap items-center gap-2 text-sm font-semibold text-muted-foreground sm:ml-auto sm:w-auto" htmlFor="agendada">
+                <span>Agendar para:</span>
                 <input
+                  id="agendada"
                   type="datetime-local"
                   value={agendada}
                   onChange={(e) => setAgendada(e.target.value)}
-                  className={`${campo} py-1.5 text-foreground`}
+                  className={`${campo} min-w-0 max-w-full py-1.5 text-foreground`}
                 />
               </label>
             </div>
           </form>
         </section>
 
-        <section className="rounded-2xl bg-card p-5 shadow-card">
-          <h2 className="mb-4 text-lg font-bold">
+        <section className="nocturna-panel rounded-2xl p-5" aria-labelledby="tarefas-heading">
+          <h2 id="tarefas-heading" className="mb-4 flex items-center gap-2 text-xl font-bold">
+            <Apple size={19} className="text-[#e1ddd5]" />
             {listas.find((l) => l.id === listaAtiva)?.nome}
             {diaFiltro &&
               ` · ${new Date(diaFiltro).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" })}`}
           </h2>
           {visiveis.length === 0 ? (
-            <p className="py-6 text-center text-muted-foreground">
-              Nenhuma tarefa aqui. Adicione uma acima!
+            <p className="py-10 text-center text-[#e1ddd5]">
+              O silêncio da noite está intacto. Adicione uma tarefa acima.
             </p>
           ) : (
             <ul className="space-y-2">
               {visiveis.map((t) => (
                 <li
                   key={t.id}
-                  className={`flex items-start gap-3 rounded-xl border-l-4 bg-accent px-4 py-3 ${PRIORIDADES[t.prioridade].borda}`}
+                  className={`nocturna-card flex items-start gap-3 rounded-xl border-l-4 px-4 py-3 ${PRIORIDADES[t.prioridade].borda}`}
                 >
                   <input
                     type="checkbox"
                     checked={t.concluida}
-                    onChange={() =>
+                    aria-label={t.concluida ? `Reabrir tarefa: ${t.texto}` : `Concluir tarefa: ${t.texto}`}
+                    onChange={() => {
                       setTarefas(
-                        tarefas.map((x) => (x.id === t.id ? { ...x, concluida: !x.concluida } : x)),
-                      )
-                    }
-                    aria-label="Marcar como concluída"
+                        tarefas.map((x) =>
+                          x.id === t.id ? { ...x, concluida: !x.concluida } : x,
+                        ),
+                      );
+                      setAnuncio(t.concluida ? "Tarefa reaberta." : "Tarefa concluída.");
+                    }}
                     className="mt-1 h-5 w-5 accent-primary"
                   />
                   <div className="min-w-0 flex-1">
@@ -366,14 +456,14 @@ function Index() {
                           <button
                             type="submit"
                             disabled={!rascunho.trim()}
-                            className="rounded-lg bg-primary px-3 py-1 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+                            className="rounded-lg bg-[#2d6a4f] px-3 py-1 text-sm font-semibold text-[#f3efe7] disabled:opacity-50"
                           >
                             Salvar
                           </button>
                           <button
                             type="button"
                             onClick={cancelarEdicao}
-                            className="rounded-lg border border-border px-3 py-1 text-sm font-semibold"
+                            className="rounded-lg border border-white/20 px-3 py-1 text-sm font-semibold"
                           >
                             Cancelar
                           </button>
@@ -403,16 +493,20 @@ function Index() {
                     {editandoId !== t.id && (
                       <button
                         onClick={() => iniciarEdicao(t)}
-                        className="rounded-lg px-3 py-1 text-sm font-semibold text-primary hover:bg-primary/10"
+                        className="rounded-lg px-3 py-1 text-sm font-semibold text-[#f3efe7] hover:bg-[#6e5138]/50"
                       >
-                        Editar
-                      </button>
+                      <span className="flex items-center gap-1.5">
+                        <Pencil size={14} /> Editar
+                      </span>
+                    </button>
                     )}
                     <button
-                      onClick={() => setTarefas(tarefas.filter((x) => x.id !== t.id))}
-                      className="rounded-lg px-3 py-1 text-sm font-semibold text-destructive hover:bg-destructive/10"
+                    onClick={() => setTarefas(tarefas.filter((x) => x.id !== t.id))}
+                    className="rounded-lg px-3 py-1 text-sm font-semibold text-[#f3efe7] hover:bg-[#b45b52]/50"
                     >
-                      Excluir
+                    <span className="flex items-center gap-1.5">
+                      <Trash2 size={14} /> Excluir
+                    </span>
                     </button>
                   </div>
                 </li>
